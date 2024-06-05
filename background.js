@@ -13,4 +13,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         return true; 
     }
-});
+    
+    if (request.type === 'doLC') {
+      chrome.tabs.create({ url: 'https://www.linkedin.com/feed/' }, function(tab) {
+        chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+          if (tabId === tab.id && info.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+  
+            // Send message to content script
+            chrome.tabs.sendMessage(tabId, { type: 'doLC', data: request.data });
+          }
+        });
+      });
+    }
+  });
+  
